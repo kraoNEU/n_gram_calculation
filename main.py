@@ -9,6 +9,7 @@ empty_2_gram_list = []
 empty_3_gram_list = []
 cleaned_input_string_list = []
 
+df_N_gram_1 = pd.read_csv("/Users/cvkrishnarao/Desktop/RA/n_gram_data_converted/n_gram_coca_x1w_utf_8.csv")
 df_N_gram_2 = pd.read_csv("/Users/cvkrishnarao/Desktop/RA/n_gram_data_converted/n_gram_coca_x2w_utf_8.csv")
 df_N_gram_3 = pd.read_csv("/Users/cvkrishnarao/Desktop/RA/n_gram_data_converted/n_gram_coca_x3w_utf_8.csv")
 
@@ -62,11 +63,22 @@ def n_gram_probability_calculation(n_gram_value, n_gram):
     count_n_gram = len(n_gram)
     if n_gram_value == 2:
         for query_string in n_gram:
+            # Getting the Single n-1 gram for 2 gram frequency
+            query_string_search_one_gram = query_string[0]
+
+            # Querying the result for 1-gram
+            query_dataframe_1_gram = df_N_gram_1.loc[df_N_gram_1['Word_One'] == query_string_search_one_gram]
+
+            # Querying the result for 2-gram
             query_dataframe_2_gram = df_N_gram_2.loc[
                 (df_N_gram_2['Word_One'] == query_string[0]) & (df_N_gram_2['Word_Two'] == query_string[1])]
 
-            values_frequency = query_dataframe_2_gram["Frequency"]
-            sum_frequencies += sum_frequencies + math.log(values_frequency)
+            # Getting values for 1 & 2 gram respectfully
+            values_frequency_one_gram = query_dataframe_1_gram["Frequency"]
+            values_frequency_two_gram = query_dataframe_2_gram["Frequency"]
+
+            divide = values_frequency_two_gram.div(values_frequency_one_gram)
+            sum_frequencies += sum_frequencies + math.log(float(divide))
             excel_2_gram_probabilities_list.append(query_dataframe_2_gram.values.tolist())
 
         mean_values = sum_frequencies / count_n_gram
@@ -86,7 +98,7 @@ def n_gram_probability_calculation(n_gram_value, n_gram):
                 pass
 
 
-x = cleanupString("Baby wants more pie.")
+x = cleanupString("Baby wants more pie")
 gram_list = n_gram_list(x, 2)
 statements = n_gram_probability_calculation(2, gram_list)
 print(statements)
