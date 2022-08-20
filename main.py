@@ -74,11 +74,13 @@ def n_gram_probability_calculation(n_gram_value, n_gram):
                 (df_N_gram_2['Word_One'] == query_string[0]) & (df_N_gram_2['Word_Two'] == query_string[1])]
 
             # Getting values for 1 & 2 gram respectfully
-            values_frequency_one_gram = query_dataframe_1_gram["Frequency"]
-            values_frequency_two_gram = query_dataframe_2_gram["Frequency"]
+            values_frequency_one_gram = list(query_dataframe_1_gram["Frequency"])[0]
 
-            divide = values_frequency_two_gram.div(values_frequency_one_gram)
-            sum_frequencies += sum_frequencies + math.log(float(divide))
+            values_frequency_two_gram = list(query_dataframe_2_gram["Frequency"])[0]
+
+            divide = values_frequency_two_gram/values_frequency_one_gram
+
+            sum_frequencies += sum_frequencies + math.exp(math.log(divide))
             excel_2_gram_probabilities_list.append(query_dataframe_2_gram.values.tolist())
 
         mean_values = sum_frequencies / count_n_gram
