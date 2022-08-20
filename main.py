@@ -62,7 +62,9 @@ def n_gram_probability_calculation(n_gram_value, n_gram):
     sum_frequencies = 0
     count_n_gram = len(n_gram)
     if n_gram_value == 2:
+        excel_2_gram_probabilities_list.clear()
         for query_string in n_gram:
+
             # Getting the Single n-1 gram for 2 gram frequency
             query_string_search_one_gram = query_string[0]
 
@@ -73,19 +75,27 @@ def n_gram_probability_calculation(n_gram_value, n_gram):
             query_dataframe_2_gram = df_N_gram_2.loc[
                 (df_N_gram_2['Word_One'] == query_string[0]) & (df_N_gram_2['Word_Two'] == query_string[1])]
 
-            # Getting values for 1 & 2 gram respectfully
+            # Getting values for 1 gram
             values_frequency_one_gram = list(query_dataframe_1_gram["Frequency"])[0]
 
+            # Getting the values for 2 gram
             values_frequency_two_gram = list(query_dataframe_2_gram["Frequency"])[0]
 
-            divide = values_frequency_two_gram/values_frequency_one_gram
+            # Dividing to get the values of the frequency
+            divide = values_frequency_two_gram / values_frequency_one_gram
 
+            # calculation of the n_gram frequency
             sum_frequencies += sum_frequencies + math.exp(math.log(divide))
             excel_2_gram_probabilities_list.append(query_dataframe_2_gram.values.tolist())
 
+            values_frequency_one_gram = int
+            values_frequency_two_gram = int
+
+        # Getting the Mean value of the n_gram
         mean_values = sum_frequencies / count_n_gram
-        print(mean_values)
-        return excel_2_gram_probabilities_list
+
+        # Returning the list frequency and the mean values
+        return excel_2_gram_probabilities_list, mean_values
 
     elif n_gram_value == 3:
         for query_string in n_gram:
@@ -100,7 +110,15 @@ def n_gram_probability_calculation(n_gram_value, n_gram):
                 pass
 
 
-x = cleanupString("Baby wants more pie")
-gram_list = n_gram_list(x, 2)
-statements = n_gram_probability_calculation(2, gram_list)
-print(statements)
+# Input Values for the n_gram
+df = pd.read_csv("/Users/cvkrishnarao/Desktop/n_gram_document_copy.csv")
+list_n_gram = list(df["SET 1"])
+
+for n_gram in list_n_gram:
+    x = cleanupString(n_gram)
+    gram_list = n_gram_list(x, 2)
+    frequency_Count, n_gram_probability = n_gram_probability_calculation(2, gram_list)
+    print(f"{frequency_Count}\n")
+    frequency_Count.clear()
+    n_gram_probability = 0
+    gram_list.clear()
