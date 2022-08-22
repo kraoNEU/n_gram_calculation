@@ -8,6 +8,7 @@ excel_3_gram_probabilities_list = []
 empty_2_gram_list = []
 empty_3_gram_list = []
 cleaned_input_string_list = []
+probability_value_list =[]
 
 df_N_gram_1 = pd.read_csv("/Users/cvkrishnarao/Desktop/RA/n_gram_data_converted/n_gram_coca_x1w_utf_8.csv")
 df_N_gram_2 = pd.read_csv("/Users/cvkrishnarao/Desktop/RA/n_gram_data_converted/n_gram_coca_x2w_utf_8.csv")
@@ -61,6 +62,7 @@ def n_gram_probability_calculation(n_gram_value, n_gram):
     """
     sum_frequencies = 0
     count_n_gram = len(n_gram)
+    probability_value_list.clear()
     if n_gram_value == 2:
         excel_2_gram_probabilities_list.clear()
         for query_string in n_gram:
@@ -75,14 +77,31 @@ def n_gram_probability_calculation(n_gram_value, n_gram):
             query_dataframe_2_gram = df_N_gram_2.loc[
                 (df_N_gram_2['Word_One'] == query_string[0]) & (df_N_gram_2['Word_Two'] == query_string[1])]
 
-            # Getting values for 1 gram
-            values_frequency_one_gram = list(query_dataframe_1_gram["Frequency"])[0]
+            try:
+                # Getting values for 1 gram
+                values_frequency_one_gram = list(query_dataframe_1_gram["Frequency"])[0]
+            except IndexError:
+                values_frequency_one_gram = 1
 
-            # Getting the values for 2 gram
-            values_frequency_two_gram = list(query_dataframe_2_gram["Frequency"])[0]
+            try:
+                # Getting the values for 2 gram
+                values_frequency_two_gram = list(query_dataframe_2_gram["Frequency"])[0]
+            except IndexError:
+                values_frequency_two_gram = 1
+
+            if values_frequency_one_gram is None:
+                values_frequency_one_gram = 1
+
+            if values_frequency_two_gram is None:
+                values_frequency_two_gram = 1
 
             # Dividing to get the values of the frequency
             divide = values_frequency_two_gram / values_frequency_one_gram
+
+            # Probabilities
+            probability_value = math.exp(math.log(divide))
+
+            probability_value_list.append(probability_value)
 
             # calculation of the n_gram frequency
             sum_frequencies += sum_frequencies + math.exp(math.log(divide))
@@ -95,7 +114,7 @@ def n_gram_probability_calculation(n_gram_value, n_gram):
         mean_values = sum_frequencies / count_n_gram
 
         # Returning the list frequency and the mean values
-        return excel_2_gram_probabilities_list, mean_values
+        return excel_2_gram_probabilities_list, mean_values, probability_value_list
 
     elif n_gram_value == 3:
         for query_string in n_gram:
@@ -112,13 +131,14 @@ def n_gram_probability_calculation(n_gram_value, n_gram):
 
 # Input Values for the n_gram
 df = pd.read_csv("/Users/cvkrishnarao/Desktop/n_gram_document_copy.csv")
-list_n_gram = list(df["SET 1"])
+list_n_gram = list(df["SET 4"])
+
 
 for n_gram in list_n_gram:
     x = cleanupString(n_gram)
     gram_list = n_gram_list(x, 2)
-    frequency_Count, n_gram_probability = n_gram_probability_calculation(2, gram_list)
-    print(f"{frequency_Count}\n")
+    frequency_Count, n_gram_probability_mean, n_gram_individual_probability = n_gram_probability_calculation(2, gram_list)
+    print(f"{frequency_Count}, {n_gram_individual_probability}, {n_gram_probability_mean}\n")
     frequency_Count.clear()
-    n_gram_probability = 0
+    n_gram_probability_mean = 0
     gram_list.clear()
