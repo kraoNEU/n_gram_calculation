@@ -11,10 +11,9 @@ probability_value_list = []
 
 df_N_gram_1 = pd.read_csv("/Users/cvkrishnarao/Desktop/RA/n_gram_data_converted/n_gram_coca_x1w_utf_8.csv")
 df_N_gram_2 = pd.read_csv("/Users/cvkrishnarao/Desktop/RA/n_gram_data_converted/n_gram_coca_x2w_utf_8.csv")
-df_N_gram_3 = pd.read_csv("/Users/cvkrishnarao/Desktop/RA/n_gram_data_converted/n_gram_coca_x3w_utf_8.csv")
 
 
-def cleanupString(uncleanedString):
+def cleanupString_bi_gram(uncleanedString):
     """
     :param uncleanedString: Uncleaned String with all special Characters and stuff
     :return: cleaned string with no special characters
@@ -39,7 +38,7 @@ def cleanupString(uncleanedString):
     return f
 
 
-def n_gram_list(input_Cleaned_string, n_gram_value):
+def n_gram_list_bi_gram(input_Cleaned_string, n_gram_value):
     """
     :param input_Cleaned_string: Cleaned string without spaces or special characters
     :param n_gram_value: value of n-gram split == 2 or 3, 4, 5
@@ -53,7 +52,7 @@ def n_gram_list(input_Cleaned_string, n_gram_value):
     return n_gram_string_list
 
 
-def n_gram_probability_calculation(n_gram_value, n_gram):
+def n_gram_probability_calculation_bi_gram(n_gram_value, n_gram):
     """
     Calculates the respective score for the n-gram dataset. n_gram_value == 2 or 3, 4, 5
     n_gram = actual list of the splitted word count
