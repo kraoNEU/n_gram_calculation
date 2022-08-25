@@ -45,11 +45,14 @@ def n_gram_list_tri_gram(input_Cleaned_string, n_gram_value):
     :return: Splitted work list according to the n_gram_values
     """
     split_string = input_Cleaned_string.split()
-    for string in range(len(split_string)):
-        y = split_string[string:string + n_gram_value]
-        if len(y) == n_gram_value:
-            n_gram_string_list.append(y)
-    return n_gram_string_list
+    if len(split_string) < n_gram_value:
+        return
+    else:
+        for string in range(len(split_string)):
+            y = split_string[string:string + n_gram_value]
+            if len(y) == n_gram_value:
+                n_gram_string_list.append(y)
+        return n_gram_string_list
 
 
 def n_gram_probability_calculation_tri_gram(n_gram_value, n_gram):
@@ -58,58 +61,66 @@ def n_gram_probability_calculation_tri_gram(n_gram_value, n_gram):
     n_gram = actual list of the splitted word count
     returns: excel_2_gram_probabilities_list with the frequency count for the values and the probability
     """
-    sum_frequencies = 0
-    count_n_gram = len(n_gram)
-    probability_value_list.clear()
-    if n_gram_value == 3:
-        excel_2_gram_probabilities_list.clear()
-        for query_string in n_gram:
+    if n_gram is not None:
 
-            # Getting the Single n-1 gram for 2 gram frequency
-            query_string_search_one_gram = query_string[0:1]
+        sum_frequencies = 0
+        count_n_gram = len(n_gram)
+        probability_value_list.clear()
+        if n_gram_value == 3:
+            excel_2_gram_probabilities_list.clear()
+            for query_string in n_gram:
 
-            # Querying the result for 1-gram
-            query_dataframe_1_gram = df_N_gram_1.loc[df_N_gram_1['Word_One'] == query_string_search_one_gram]
+                # Getting the Single n-1 gram for 2 gram frequency
+                query_string_search_one_gram = query_string[0:2]
 
-            # Querying the result for 2-gram
-            query_dataframe_2_gram = df_N_gram_2.loc[
-                (df_N_gram_2['Word_One'] == query_string[0]) & (df_N_gram_2['Word_Two'] == query_string[1])]
+                # Querying the result for 2-gram
+                query_dataframe_2_gram = df_N_gram_2.loc[
+                    (df_N_gram_2['Word_One'] == query_string_search_one_gram[0]) & (
+                                df_N_gram_2['Word_Two'] == query_string_search_one_gram[1])]
 
-            try:
-                # Getting values for 1 gram
-                values_frequency_one_gram = list(query_dataframe_1_gram["Frequency"])[0]
-            except IndexError:
-                values_frequency_one_gram = 1
+                # Querying the result for 3-gram
+                query_dataframe_3_gram = df_N_gram_3.loc[
+                    (df_N_gram_3['Word_One'] == query_string[0]) & (df_N_gram_3['Word_Two'] == query_string[1]) & (
+                                df_N_gram_3['Word_Three'] == query_string[2])]
 
-            try:
-                # Getting the values for 2 gram
-                values_frequency_two_gram = list(query_dataframe_2_gram["Frequency"])[0]
-            except IndexError:
-                values_frequency_two_gram = 1
+                try:
+                    # Getting values for 1 gram
+                    values_frequency_two_gram = list(query_dataframe_2_gram["Frequency"])[0]
+                except IndexError:
+                    values_frequency_two_gram = 1
 
-            if values_frequency_one_gram is None:
-                values_frequency_one_gram = 1
+                try:
+                    # Getting the values for 2 gram
+                    values_frequency_three_gram = list(query_dataframe_3_gram["Frequency"])[0]
+                except IndexError:
+                    values_frequency_three_gram = 1
 
-            if values_frequency_two_gram is None:
-                values_frequency_two_gram = 1
+                if values_frequency_two_gram is None:
+                    values_frequency_two_gram = 1
 
-            # Dividing to get the values of the frequency
-            divide = values_frequency_two_gram / values_frequency_one_gram
+                if values_frequency_three_gram is None:
+                    values_frequency_three_gram = 1
 
-            # Probabilities
-            probability_value = math.exp(math.log(divide))
+                # Dividing to get the values of the frequency
+                divide = values_frequency_three_gram / values_frequency_two_gram
 
-            probability_value_list.append(probability_value)
+                # Probabilities
+                probability_value = math.exp(math.log(divide))
 
-            # calculation of the n_gram frequency
-            sum_frequencies += sum_frequencies + math.exp(math.log(divide))
-            excel_2_gram_probabilities_list.append(query_dataframe_2_gram.values.tolist())
+                probability_value_list.append(probability_value)
 
-            values_frequency_one_gram = int
-            values_frequency_two_gram = int
+                # calculation of the n_gram frequency
+                sum_frequencies += sum_frequencies + math.exp(math.log(divide))
+                excel_2_gram_probabilities_list.append(query_dataframe_3_gram.values.tolist())
 
-        # Getting the Mean value of the n_gram
-        mean_values = sum_frequencies / count_n_gram
+                values_frequency_two_gram = int
+                values_frequency_three_gram = int
 
-        # Returning the list frequency and the mean values
-        return excel_2_gram_probabilities_list, mean_values, probability_value_list
+            # Getting the Mean value of the n_gram
+            mean_values = sum_frequencies / count_n_gram
+
+            # Returning the list frequency and the mean values
+            return excel_2_gram_probabilities_list, mean_values, probability_value_list
+
+    else:
+        return None, None, None
